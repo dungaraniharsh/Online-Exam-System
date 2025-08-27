@@ -1,0 +1,370 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ExamPro - Professional Online Examination Platform for creating and taking exams">
+    <meta name="keywords" content="exam, quiz, assessment, education, e-learning">
+    <meta name="author" content="Your Name">
+    <title>ExamPro - Online Examination Platform</title>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="src/css/main.css">
+    <link rel="stylesheet" href="src/css/components.css">
+    <link rel="stylesheet" href="src/css/responsive.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
+</head>
+<body>
+    <!-- Help Button -->
+    <button id="helpBtn" class="help-btn" onclick="ExamPro.showHelp()" aria-label="Help">
+        ❓ Help
+    </button>
+
+    <div class="container">
+        <header class="header">
+            <h1>🎓 ExamPro</h1>
+            <p>Professional Online Examination Platform</p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="nav-tabs" role="tablist">
+            <button class="tab-btn active" onclick="ExamPro.showTab('admin')" role="tab" aria-selected="true">
+                Admin Panel
+            </button>
+            <button class="tab-btn" onclick="ExamPro.showTab('exams')" role="tab" aria-selected="false">
+                Available Exams
+            </button>
+            <button class="tab-btn" onclick="ExamPro.showTab('results')" role="tab" aria-selected="false">
+                Results
+            </button>
+        </nav>
+
+        <!-- Admin Panel -->
+        <section id="admin" class="tab-content active" role="tabpanel">
+            <h2>📝 Create New Exam</h2>
+            <form id="examForm" novalidate>
+                <div class="form-group">
+                    <label for="examTitle">Exam Title *</label>
+                    <input type="text" id="examTitle" name="title" placeholder="e.g., JavaScript Fundamentals Quiz" required>
+                </div>
+                <div class="form-group">
+                    <label for="timeLimit">Time Limit (minutes) *</label>
+                    <input type="number" id="timeLimit" name="timeLimit" value="30" min="1" max="180" required>
+                </div>
+                <div class="form-group">
+                    <label for="examDescription">Description</label>
+                    <textarea id="examDescription" name="description" rows="3" placeholder="Brief description of the exam"></textarea>
+                </div>
+            </form>
+
+            <h3>Questions</h3>
+            <div id="questionsContainer" aria-live="polite">
+                <!-- Questions will be added here dynamically -->
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn" onclick="QuestionHandler.addQuestion()">➕ Add Question</button>
+                <button class="btn" onclick="ExamManager.saveExam()">💾 Save Exam</button>
+            </div>
+            
+            <h3>Existing Exams</h3>
+            <div id="examsList" aria-live="polite"></div>
+
+            <!-- Data Management Section -->
+            <section class="data-management">
+                <h3>Data Management</h3>
+                <div class="action-buttons">
+                    <button class="btn" onclick="StorageManager.exportData()">📤 Export Data</button>
+                    <input type="file" id="importFile" accept=".json" onchange="StorageManager.importData(event)" style="display: none;" aria-label="Import data file">
+                    <button class="btn" onclick="document.getElementById('importFile').click()">📥 Import Data</button>
+                    <button class="btn btn-secondary" onclick="StorageManager.clearAllData()">🗑️ Clear All Data</button>
+                </div>
+            </section>
+        </section>
+
+        <!-- Available Exams -->
+        <section id="exams" class="tab-content" role="tabpanel">
+            <h2>📚 Available Exams</h2>
+            <div id="availableExams" aria-live="polite"></div>
+        </section>
+
+        <!-- Exam Taking Interface -->
+        <section id="examInterface" class="tab-content" role="tabpanel">
+            <div id="timer" class="timer hidden" aria-live="assertive">
+                ⏰ Time: <span id="timeLeft">00:00</span>
+            </div>
+            <div id="examHeader"></div>
+            <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                <div id="progressBar" class="progress" style="width: 0%"></div>
+            </div>
+            <div id="questionNavigation" class="question-nav" role="navigation" aria-label="Question navigation"></div>
+            <div id="currentQuestion" aria-live="polite"></div>
+            <div class="exam-controls">
+                <button class="btn btn-secondary" onclick="ExamManager.previousQuestion()">⬅️ Previous</button>
+                <button class="btn" onclick="ExamManager.nextQuestion()">Next ➡️</button>
+                <button class="btn" onclick="ExamManager.submitExam()" style="margin-left: 20px;">✅ Submit Exam</button>
+            </div>
+        </section>
+
+        <!-- Results -->
+        <section id="results" class="tab-content" role="tabpanel">
+            <h2>📊 Exam Results</h2>
+            <div id="resultsContainer" aria-live="polite"></div>
+        </section>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="src/js/utils.js"></script>
+    <script src="src/js/storage.js"></script>
+    <script src="src/js/timer.js"></script>
+    <script src="src/js/question-handler.js"></script>
+    <script src="src/js/exam-manager.js"></script>
+    <script src="src/js/main.js"></script>
+</body>
+</html>
+
+<!-- src/css/main.css -->
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --white: #ffffff;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    --shadow-light: 0 5px 15px rgba(0, 0, 0, 0.2);
+    --border-radius: 8px;
+    --border-radius-lg: 15px;
+    --transition: all 0.3s ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--primary-gradient);
+    min-height: 100vh;
+    color: var(--dark-color);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.header {
+    text-align: center;
+    color: var(--white);
+    margin-bottom: 30px;
+}
+
+.header h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.header p {
+    font-size: 1.2em;
+    opacity: 0.9;
+}
+
+.help-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: var(--white);
+    padding: 10px 15px;
+    border-radius: 25px;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    transition: var(--transition);
+    z-index: 1000;
+    font-weight: 500;
+}
+
+.help-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Navigation and Tab Styles */
+.nav-tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    gap: 10px;
+}
+
+.tab-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: var(--white);
+    padding: 12px 24px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: var(--transition);
+    backdrop-filter: blur(10px);
+    font-weight: 500;
+}
+
+.tab-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.tab-btn.active {
+    background: var(--white);
+    color: #667eea;
+    box-shadow: var(--shadow-light);
+}
+
+.tab-content {
+    display: none;
+    background: var(--white);
+    border-radius: var(--border-radius-lg);
+    padding: 30px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(10px);
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(20px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+}
+
+input, textarea, select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: var(--border-radius);
+    font-size: 16px;
+    transition: var(--transition);
+    font-family: inherit;
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+}
+
+input:invalid:not(:focus):not(:placeholder-shown) {
+    border-color: var(--danger-color);
+}
+
+/* Button Styles */
+.btn {
+    background: var(--primary-gradient);
+    color: var(--white);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: var(--transition);
+    margin: 5px;
+    display: inline-block;
+    text-decoration: none;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-light);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: #6c757d;
+}
+
+.btn-danger {
+    background: var(--danger-color);
+}
+
+.btn-success {
+    background: var(--success-color);
+}
+
+.action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+/* Timer Styles */
+.timer {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--danger-color);
+    color: var(--white);
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: bold;
+    z-index: 1000;
+    box-shadow: var(--shadow-light);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Progress Bar */
+.progress-bar {
+    background: #e9ecef;
+    border-radius: 10px;
+    height: 10px;
+    margin: 20px 0;
+    overflow: hidden;
+}
+
+.progress {
+    background: var(--primary-gradient);
+    height: 100%;
+    border-radius: 10
